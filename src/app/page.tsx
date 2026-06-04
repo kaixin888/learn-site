@@ -15,12 +15,16 @@ export default function HomePage() {
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams();
-    if (category) params.set("category", category);
-    if (search) params.set("q", search);
-    const res = await fetch("/api/notes?" + params.toString());
-    const data = await res.json();
-    if (Array.isArray(data)) setNotes(data);
+    try {
+      const params = new URLSearchParams();
+      if (category) params.set("category", category);
+      const res = await fetch("/api/notes?" + params.toString());
+      const data = await res.json();
+      if (Array.isArray(data)) setNotes(data);
+      else setNotes([]);
+    } catch {
+      setNotes([]);
+    }
     setLoading(false);
   }, [category]);
 

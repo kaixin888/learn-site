@@ -22,7 +22,7 @@ export default function AdminPage() {
   }
 
   function handleLogin() {
-    if (password === 'clowand888') { setLoggedIn(true); setMsg(''); }
+    if (password.trim() === 'clowand888') { setLoggedIn(true); setMsg(''); }
     else setMsg('密码错误');
   }
 

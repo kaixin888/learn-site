@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { parseCornellMarkdown, renderMarkdown, generateSlug } from '@/lib/parseMarkdown';
 
 export async function GET(req: NextRequest) {
+  const supabase = getSupabase();
   const { searchParams } = new URL(req.url);
   const q = searchParams.get('q') || '';
   const cat = searchParams.get('category') || '';
@@ -15,6 +16,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = getSupabase();
   const body = await req.json();
   const { title, content_md, category, tags } = body;
   if (!content_md || !category) {
