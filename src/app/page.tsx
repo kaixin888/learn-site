@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from "react";
-import { type Note } from "@/types";
+import { type Note, type Category, DEFAULT_CATEGORIES } from "@/types";
 import SearchBar from "@/components/SearchBar";
 import CategoryNav from "@/components/CategoryNav";
 import CornellCard from "@/components/CornellCard";
@@ -12,6 +12,13 @@ export default function HomePage() {
   const [category, setCategory] = useState("");
   const [selected, setSelected] = useState<Note|null>(null);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    fetch('/api/categories').then(r => r.json()).then(data => {
+      if (Array.isArray(data) && data.length > 0) setCategories(data);
+    }).catch(() => {});
+  }, []);
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -53,7 +60,7 @@ export default function HomePage() {
         </div>
       </header>
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <CategoryNav active={category} onChange={(c)=>{setCategory(c);setSearch("");}} />
+        <CategoryNav active={category} onChange={(c)=>{setCategory(c);setSearch("");}} categories={categories} />
         {loading ? (
           <div className="text-center py-20 text-gray-400">加载中...</div>
         ) : filtered.length === 0 ? (

@@ -1,7 +1,7 @@
 'use client';
-import { CATEGORIES } from '@/types';
+import type { Category } from '@/types';
 
-export default function CategoryNav({ active, onChange }: { active: string; onChange: (c: string) => void }) {
+export default function CategoryNav({ active, onChange, categories }: { active: string; onChange: (c: string) => void; categories: Category[] }) {
   const btnStyle = (isActive: boolean) =>
     isActive
       ? 'px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-blue-600 text-white shadow-sm'
@@ -10,8 +10,8 @@ export default function CategoryNav({ active, onChange }: { active: string; onCh
   return (
     <div className="flex flex-wrap gap-2 justify-center">
       <button onClick={() => onChange('')} className={btnStyle(active === '')}>全部</button>
-      {CATEGORIES.map((cat) => (
-        <button key={cat} onClick={() => onChange(cat)} className={btnStyle(active === cat)}>{cat}</button>
+      {categories.map((cat) => (
+        <button key={cat.id} onClick={() => onChange(cat.name)} className={btnStyle(active === cat.name)}>{cat.name}</button>
       ))}
     </div>
   );

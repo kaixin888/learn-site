@@ -1,24 +1,71 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { CATEGORIES, type Note } from '@/types';
+import { type Note, type Category, DEFAULT_CATEGORIES } from '@/types';
 import { parseCornellMarkdown } from '@/lib/parseMarkdown';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [category, setCategory] = useState('前端开发');
   const [tags, setTags] = useState('');
   const [md, setMd] = useState('');
   const [preview, setPreview] = useState<{ title: string; cue: string; content: string; summary: string } | null>(null);
   const [msg, setMsg] = useState('');
 
-  useEffect(() => { if (loggedIn) fetchNotes(); }, [loggedIn]);
+  // 分类管理 state
+  const [newCatName, setNewCatName] = useState('');
+  const [editingCat, setEditingCat] = useState<{ id: string; name: string } | null>(null);
+  const [catMsg, setCatMsg] = useState('');
+
+  useEffect(() => { if (loggedIn) { fetchNotes(); fetchCategories(); } }, [loggedIn]);
 
   async function fetchNotes() {
-    const res = await fetch('/api/notes');
-    const data = await res.json();
-    if (Array.isArray(data)) setNotes(data);
+    try {
+      const res = await fetch('/api/notes');
+      const data = await res.json();
+      if (Array.isArray(data)) setNotes(data);
+    } catch {}
+  }
+  async function fetchCategories() {
+    try {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) setCategories(data);
+    } catch {}
+  }
+
+  async function handleAddCategory() {
+    const name = newCatName.trim();
+    if (!name) { setCatMsg('请输入分类名称'); return; }
+    const res = await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (res.ok) { setNewCatName(''); setCatMsg(''); fetchCategories(); }
+    else { const err = await res.json(); setCatMsg('新增失败: ' + err.error); }
+  }
+
+  async function handleUpdateCategory() {
+    if (!editingCat) return;
+    const name = editingCat.name.trim();
+    if (!name) { setCatMsg('分类名称不能为空'); return; }
+    const res = await fetch('/api/categories/' + editingCat.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (res.ok) { setEditingCat(null); setCatMsg(''); fetchCategories(); }
+    else { const err = await res.json(); setCatMsg('修改失败: ' + err.error); }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!confirm('确认删除该分类？')) return;
+    const res = await fetch('/api/categories/' + id, { method: 'DELETE' });
+    if (res.ok) { setCatMsg(''); fetchCategories(); }
+    else { const err = await res.json(); setCatMsg('删除失败: ' + err.error); }
   }
 
   function handleLogin() {
@@ -79,7 +126,7 @@ export default function AdminPage() {
           <div className="bg-white p-6 rounded-2xl shadow-sm">
             <h2 className="font-bold mb-4">粘贴 Markdown 内容</h2>
             <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-2.5 border rounded-xl mb-3">
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
             </select>
             <input type="text" value={tags} onChange={e => setTags(e.target.value)} placeholder="标签（逗号分隔）" className="w-full p-2.5 border rounded-xl mb-3" />
             <textarea value={md} onChange={e => { setMd(e.target.value); }} placeholder={'粘贴 AI 生成的 Markdown 内容...\n\n格式示例：\n# 标题\n## 提示\n提示内容...\n## 笔记\n笔记内容...\n## 总结\n总结内容...'}
@@ -110,6 +157,57 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* 分类管理面板 */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm mt-6">
+          <h2 className="font-bold mb-4">分类管理 ({categories.length})</h2>
+          {catMsg && (
+            <div className={'mb-3 p-3 rounded-xl text-sm ' + (catMsg.includes('失败') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700')}>
+              {catMsg}
+            </div>
+          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+            {categories.map(cat => (
+              <div key={cat.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm group">
+                {editingCat?.id === cat.id ? (
+                  <input
+                    value={editingCat.name}
+                    onChange={e => setEditingCat({ ...editingCat, name: e.target.value })}
+                    onKeyDown={e => { if (e.key === 'Enter') handleUpdateCategory(); if (e.key === 'Escape') setEditingCat(null); }}
+                    className="flex-1 w-20 p-1 border rounded text-sm mr-1"
+                    autoFocus
+                  />
+                ) : (
+                  <span className="truncate">{cat.name}</span>
+                )}
+                <span className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {editingCat?.id === cat.id ? (
+                    <>
+                      <button onClick={handleUpdateCategory} className="text-green-500 text-xs hover:underline">保存</button>
+                      <button onClick={() => setEditingCat(null)} className="text-gray-400 text-xs hover:underline">取消</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => setEditingCat({ id: cat.id, name: cat.name })} className="text-blue-500 text-xs hover:underline">编辑</button>
+                      <button onClick={() => handleDeleteCategory(cat.id)} className="text-red-400 text-xs hover:underline">删除</button>
+                    </>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newCatName}
+              onChange={e => setNewCatName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+              placeholder="输入新分类名称"
+              className="flex-1 max-w-xs p-2.5 border rounded-xl text-sm"
+            />
+            <button onClick={handleAddCategory} className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700">+ 新增</button>
           </div>
         </div>
       </div>
