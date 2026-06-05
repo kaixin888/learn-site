@@ -68,6 +68,19 @@ export default function AdminPage() {
     else { const err = await res.json(); setCatMsg('删除失败: ' + err.error); }
   }
 
+  async function handleCleanupDupes() {
+    if (!confirm('将删除所有重复分类（保留最早创建的一条），确认？')) return;
+    const res = await fetch('/api/categories/cleanup', { method: 'DELETE' });
+    if (res.ok) {
+      const result = await res.json();
+      setCatMsg('已清理 ' + (result.deleted || 0) + ' 条重复分类');
+      fetchCategories();
+    } else {
+      const err = await res.json();
+      setCatMsg('清理失败: ' + err.error);
+    }
+  }
+
   function handleLogin() {
     if (password.trim() === 'clowand888') { setLoggedIn(true); setMsg(''); }
     else setMsg('密码错误');
@@ -162,7 +175,9 @@ export default function AdminPage() {
 
         {/* 分类管理面板 */}
         <div className="bg-white p-6 rounded-2xl shadow-sm mt-6">
-          <h2 className="font-bold mb-4">分类管理 ({categories.length})</h2>
+          <h2 className="font-bold mb-4">分类管理 ({categories.length})
+            <button onClick={handleCleanupDupes} className="ml-3 text-xs text-red-500 hover:underline font-normal">清理重复</button>
+          </h2>
           {catMsg && (
             <div className={'mb-3 p-3 rounded-xl text-sm ' + (catMsg.includes('失败') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700')}>
               {catMsg}
