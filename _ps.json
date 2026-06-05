@@ -1,0 +1,46 @@
+✅ Vercel project `pureswipe-site`:
+
+```json
+{
+  "id": "prj_F1OqPGcyqZitUoD37fbJ9ZyRW6bg",
+  "name": "pureswipe-site",
+  "framework": "nextjs",
+  "accountId": "team_uNPGu1Wl8NtYE8Ne7sciHBwe",
+  "createdAt": 1775896121306,
+  "updatedAt": 1780628627849,
+  "rootDirectory": null,
+  "nodeVersion": "24.x",
+  "publicSource": null,
+  "envCount": 0,
+  "link": {
+    "type": "github",
+    "repo": "pureswipe-site",
+    "repoId": 1207647299,
+    "org": "kaixin888",
+    "repoOwnerId": 53389198,
+    "gitCredentialId": "cred_b0c27a29de509f480ca2b2588bd89f34c15665ab",
+    "productionBranch": "main",
+    "createdAt": 1778997541619,
+    "updatedAt": 1778997541619,
+    "deployHooks": []
+  },
+  "latestDeployments": [
+    {
+      "id": "dpl_HAPanjXdo3jLcFGGDF7Bjqy6s1FB",
+      "url": "pureswipe-site-cclt9mr7o-kaixin888s-projects.vercel.app",
+      "state": null,
+      "createdAt": 1780628382193
+    },
+    {
+      "id": "dpl_4Xwk2Uov3oH5HQYVRkfD1nLqtPN3",
+      "url": "pureswipe-site-qogzugki1-kaixin888s-projects.vercel.app",
+      "state": null,
+      "createdAt": 1780628316381
+    }
+  ],
+  "targets": [
+    "production",
+    "preview"
+  ]
+}
+```

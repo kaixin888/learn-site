@@ -15,7 +15,7 @@ export default function NoteDetail({ note, onBack }: { note: Note; onBack: () =>
           {note.tags && note.tags.map((t: string) => (<span key={t} className="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full">{t}</span>))}
           <span className="text-xs text-gray-400">{new Date(note.created_at).toLocaleDateString('zh-CN')}</span>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-[30%] bg-gradient-to-br from-blue-50 to-blue-100 p-6 border-b md:border-b-0 md:border-r border-gray-200">
               <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wider mb-3">提示</h3>

@@ -16,7 +16,7 @@ export default async function NotePage({ params }: { params: { id: string } }) {
         <Link href="/" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-4">
           &larr; 返回列表
         </Link>
-        <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <article className="bg-white rounded-2xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100">
             <p className="text-xs text-gray-400 uppercase tracking-wider">{note.category}</p>
             <h1 className="text-2xl font-bold text-gray-900 mt-1">{note.title}</h1>

@@ -1,0 +1,46 @@
+✅ Vercel project `learn-site`:
+
+```json
+{
+  "id": "prj_EQg6UG8a4iy1ZZ1h4wNiysH9VNPP",
+  "name": "learn-site",
+  "framework": "nextjs",
+  "accountId": "team_uNPGu1Wl8NtYE8Ne7sciHBwe",
+  "createdAt": 1780581600469,
+  "updatedAt": 1780634125594,
+  "rootDirectory": null,
+  "nodeVersion": "24.x",
+  "publicSource": null,
+  "envCount": 0,
+  "link": {
+    "type": "github",
+    "repo": "learn-site",
+    "repoId": 1259384602,
+    "org": "kaixin888",
+    "repoOwnerId": 53389198,
+    "gitCredentialId": "cred_b0c27a29de509f480ca2b2588bd89f34c15665ab",
+    "productionBranch": "main",
+    "sourceless": true,
+    "createdAt": 1780581600267,
+    "updatedAt": 1780581600267,
+    "deployHooks": []
+  },
+  "latestDeployments": [
+    {
+      "id": "dpl_BXkGrD3EiRQTv7wRM4E9SHNUGmq5",
+      "url": "learn-site-pav0xomqr-kaixin888s-projects.vercel.app",
+      "state": null,
+      "createdAt": 1780634085585
+    },
+    {
+      "id": "dpl_5oX6MDAvCWumSSb9xmcWDtqfAdGj",
+      "url": "learn-site-g162kzfxe-kaixin888s-projects.vercel.app",
+      "state": null,
+      "createdAt": 1780621446128
+    }
+  ],
+  "targets": [
+    "production"
+  ]
+}
+```
