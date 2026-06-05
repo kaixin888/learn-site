@@ -2,10 +2,24 @@
 import Link from 'next/link';
 import type { Note } from '@/types';
 
-export default function CornellCard({ note }: { note: Note }) {
+export default function CornellCard({ note, onClick }: { note: Note; onClick?: () => void }) {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="block w-full text-left">
+        <Article note={note} />
+      </button>
+    );
+  }
   return (
     <Link href={`/note/${note.id}`} className="block group">
-      <article
+      <Article note={note} />
+    </Link>
+  );
+}
+
+function Article({ note }: { note: Note }) {
+  return (
+    <article
         className="rounded-2xl overflow-hidden transition-all duration-200 hover:-translate-y-0.5"
         style={{
           background: '#fffdf9',
@@ -57,6 +71,5 @@ export default function CornellCard({ note }: { note: Note }) {
           )}
         </div>
       </article>
-    </Link>
   );
 }
