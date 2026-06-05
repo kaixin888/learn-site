@@ -32,6 +32,7 @@ export function parseCornellMarkdown(md: string): ParsedCornell {
       continue;
     }
 
+    // 匹配区块标题行（### 🔍 线索栏 等），切换 section，不存入内容
     const matched = SECTION_PATTERNS.find(p => p.re.test(line));
     if (matched) {
       section = matched.section;
@@ -39,15 +40,12 @@ export function parseCornellMarkdown(md: string): ParsedCornell {
       continue;
     }
 
-    // 其他 ## / ### 标题，归入正文（保留原行，便于 Markdown 渲染层级）
+    // 其他 ## / ### 标题行：跳过（不存入任何栏，避免 ### 残留）
     if (/^#{2,3}\s+/.test(line)) {
-      section = section === 'none' ? 'content' : section;
-      if (section === 'cue') cue += line + '\n';
-      else if (section === 'summary') summary += line + '\n';
-      else content += line + '\n';
       continue;
     }
 
+    // 普通内容行
     if (section === 'cue') cue += line + '\n';
     else if (section === 'content') content += line + '\n';
     else if (section === 'summary') summary += line + '\n';
@@ -81,7 +79,6 @@ export async function renderMarkdown(md: string): Promise<string> {
   return result.toString();
 }
 
-export function generateSlug(title: string): string {
-  const base = title.toLowerCase().replace(/[^\w\u4e00-\u9fff]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
-  return base + '-' + Date.now().toString(36);
+export function generateSlug(): string {
+  return 'note-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
