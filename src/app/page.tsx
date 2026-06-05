@@ -44,9 +44,21 @@ export default function HomePage() {
     return <NoteDetail note={selected} onBack={() => setSelected(null)} />;
   }
 
-  const filtered = search
-    ? notes.filter(n => n.title.toLowerCase().includes(search.toLowerCase()) || n.cue_text.toLowerCase().includes(search.toLowerCase()))
-    : notes;
+  // Build a set of category names to match (parent + all its children)
+  const matchCategories = new Set<string>();
+  if (category) {
+    matchCategories.add(category);
+    const parent = categories.find(c => c.name === category);
+    if (parent?.children) {
+      for (const child of parent.children) matchCategories.add(child.name);
+    }
+  }
+
+  const filtered = notes.filter(n => {
+    const matchCat = matchCategories.size === 0 || matchCategories.has(n.category);
+    const matchSearch = !search || n.title.toLowerCase().includes(search.toLowerCase()) || n.cue_text.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
