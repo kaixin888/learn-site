@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [md, setMd] = useState('');
   const [preview, setPreview] = useState<{ title: string; cue: string; content: string; summary: string } | null>(null);
   const [msg, setMsg] = useState('');
+  const [publishing, setPublishing] = useState(false);
 
   // 分类管理 state
   const [newCatName, setNewCatName] = useState('');
@@ -94,15 +95,33 @@ export default function AdminPage() {
 
   async function handlePublish() {
     if (!md.trim()) { setMsg('请输入内容'); return; }
-    const parsed = parseCornellMarkdown(md);
-    const tagArr = tags.split(/[,，\s]+/).filter(Boolean);
-    const res = await fetch('/api/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: parsed.title, content_md: md, category, tags: tagArr }),
-    });
-    if (res.ok) { setMsg('发布成功！'); setMd(''); setPreview(null); fetchNotes(); }
-    else { const err = await res.json(); setMsg('发布失败: ' + err.error); }
+    if (publishing) return;
+    setPublishing(true);
+    setMsg('发布中...');
+    try {
+      const parsed = parseCornellMarkdown(md);
+      const tagArr = tags.split(/[,，\s]+/).filter(Boolean);
+      const res = await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: parsed.title, content_md: md, category, tags: tagArr }),
+      });
+      if (res.ok) {
+        setMsg('发布成功！');
+        setMd('');
+        setPreview(null);
+        fetchNotes();
+      } else {
+        let detail = '未知错误';
+        try { const err = await res.json(); detail = err.error || JSON.stringify(err); }
+        catch { detail = 'HTTP ' + res.status; }
+        setMsg('发布失败: ' + detail);
+      }
+    } catch (e) {
+      setMsg('发布失败: ' + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setPublishing(false);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -142,17 +161,24 @@ export default function AdminPage() {
               {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
             </select>
             <input type="text" value={tags} onChange={e => setTags(e.target.value)} placeholder="标签（逗号分隔）" className="w-full p-2.5 border rounded-xl mb-3" />
-            <textarea value={md} onChange={e => { setMd(e.target.value); }} placeholder={'粘贴 AI 生成的 Markdown 内容...\n\n格式示例：\n# 标题\n## 提示\n提示内容...\n## 笔记\n笔记内容...\n## 总结\n总结内容...'}
+            <textarea value={md} onChange={e => { setMd(e.target.value); }} placeholder={'粘贴 AI 生成的 Markdown 内容...\n\n推荐格式（康奈尔三栏）：\n# 笔记标题\n### 🔍 线索栏（提问自测）\n线索/问题内容...\n### 📝 笔记栏（核心知识点）\n笔记正文...\n### ✅ 总结栏（精简口诀）\n总结口诀...'}
               className="w-full h-64 p-3 border rounded-xl text-sm font-mono resize-none" />
             <div className="flex gap-3 mt-4">
               <button onClick={handlePreview} className="px-4 py-2 bg-gray-100 rounded-xl text-sm hover:bg-gray-200">预览</button>
-              <button onClick={handlePublish} className="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700">发布</button>
+              <button onClick={handlePublish} disabled={publishing} className="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">{publishing ? '发布中...' : '发布'}</button>
             </div>
             {preview && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-xl text-sm">
-                <div className="font-bold mb-1">预览: {preview.title}</div>
-                <div className="text-blue-700 mb-1">提示: {preview.cue.slice(0, 100)}</div>
-                <div className="text-gray-700">笔记: {preview.content.slice(0, 150)}...</div>
+              <div className="mt-4 p-4 bg-blue-50 rounded-xl text-sm space-y-2">
+                <div className="font-bold">预览: {preview.title}</div>
+                {preview.cue && (
+                  <div><span className="font-semibold text-blue-700">🔍 线索栏：</span><span className="whitespace-pre-wrap text-gray-700">{preview.cue}</span></div>
+                )}
+                {preview.content && (
+                  <div><span className="font-semibold text-green-700">📝 笔记栏：</span><span className="whitespace-pre-wrap text-gray-700">{preview.content}</span></div>
+                )}
+                {preview.summary && (
+                  <div><span className="font-semibold text-amber-700">✅ 总结栏：</span><span className="whitespace-pre-wrap text-gray-700">{preview.summary}</span></div>
+                )}
               </div>
             )}
           </div>
