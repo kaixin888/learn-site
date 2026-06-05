@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
   const parsed = parseCornellMarkdown(content_md);
   const content_html = await renderMarkdown(parsed.content);
-  const slug = generateSlug(title || parsed.title);
+    const slug = generateSlug();
   const { data, error } = await supabase.from('notes').insert({
     title: title || parsed.title,
     slug,

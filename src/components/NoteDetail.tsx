@@ -24,13 +24,12 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // 卡片切换动效
+  // 卡片切换动效重置
   useEffect(() => {
     setAnimating('none');
   }, [note.id]);
 
   function goNext() {
-    // 跨分类动效
     if (nextNote && nextNote.category !== note.category) {
       setAnimating('right');
       setTimeout(() => { onNext(); setAnimating('none'); }, 180);
@@ -55,7 +54,6 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       {/* 顶部导航条 */}
       <div className="max-w-4xl mx-auto mb-6 flex items-center gap-3">
-        {/* 左箭头 */}
         <button
           onClick={goPrev}
           disabled={isFirst}
@@ -71,7 +69,6 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
           上一张
         </button>
 
-        {/* 分类标签（点击跳转） */}
         <button
           onClick={() => onCategoryClick(note.category)}
           className="px-3 py-1.5 text-xs bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors font-medium"
@@ -80,7 +77,6 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
           {note.category}
         </button>
 
-        {/* 右箭头 */}
         <button
           onClick={goNext}
           disabled={isLast}
@@ -96,7 +92,6 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
           </svg>
         </button>
 
-        {/* 进度指示 */}
         <span className="text-xs text-gray-400 ml-auto">键盘 ← → 也可切换</span>
       </div>
 
@@ -128,7 +123,6 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
         }`}
       >
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          {/* 标题区 */}
           <div className="px-6 pt-6 pb-2">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-snug">{note.title}</h1>
             <div className="flex items-center gap-2 mt-2">
@@ -141,14 +135,11 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
             </div>
           </div>
 
-          {/* 三栏内容 */}
           <div className="flex flex-col md:flex-row">
-            {/* 线索栏 */}
             <div className="md:w-[30%] bg-gradient-to-br from-blue-50 to-blue-100 p-6 border-b md:border-b-0 md:border-r border-gray-200">
               <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wider mb-3">提示</h3>
               <div className="text-sm text-blue-900 leading-relaxed whitespace-pre-wrap">{note.cue_text}</div>
             </div>
-            {/* 笔记栏 */}
             <div className="md:w-[70%] p-6">
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">笔记</h3>
               <div
@@ -158,7 +149,6 @@ export default function NoteDetail({ note, prevNote, nextNote, onPrev, onNext, o
             </div>
           </div>
 
-          {/* 总结栏 */}
           {note.summary_text && (
             <div className="border-t border-gray-200 bg-gray-50 p-6">
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">总结</h3>

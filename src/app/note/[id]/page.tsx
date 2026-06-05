@@ -4,42 +4,99 @@ import Link from "next/link";
 export default async function NotePage({ params }: { params: { id: string } }) {
   let note;
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const res = await fetch(baseUrl + "/api/notes/" + params.id, { cache: "no-store" });
-    if (!res.ok) notFound();
-    note = await res.json();
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await supabase.from('notes').select('*').eq('id', params.id).single();
+    if (error || !data) notFound();
+    note = data;
   } catch { notFound(); }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <Link href="/" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-4">
-          &larr; 返回列表
+    <div className="min-h-screen" style={{ background: '#f7f5f0' }}>
+      <div className="max-w-4xl mx-auto px-6 py-10">
+        {/* Back */}
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-600 mb-8 transition-colors">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          返回列表
         </Link>
-        <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <p className="text-xs text-gray-400 uppercase tracking-wider">{note.category}</p>
-            <h1 className="text-2xl font-bold text-gray-900 mt-1">{note.title}</h1>
-          </div>
-          <div className="flex flex-col md:flex-row">
-            <div className="w-full md:w-1/3 bg-blue-50 border-r border-gray-100 p-6">
-              <h2 className="text-sm font-semibold text-gray-500 mb-3 uppercase">提示 / 问题</h2>
-              <div className="prose prose-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{note.cue_text}</div>
-            </div>
-            <div className="w-full md:w-2/3 p-6">
-              <h2 className="text-sm font-semibold text-gray-500 mb-3 uppercase">笔记 / 答案</h2>
-              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: note.content_html }} />
-            </div>
-          </div>
-          {note.summary_text && (
-            <div className="border-t border-gray-100 bg-gray-50 px-6 py-4">
-              <h2 className="text-sm font-semibold text-gray-500 mb-2 uppercase">总结</h2>
-              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{note.summary_text}</p>
+
+        {/* Title */}
+        <h1 className="text-[22px] font-bold text-stone-800 leading-snug mb-3 tracking-tight">
+          {note.title}
+        </h1>
+
+        {/* Meta */}
+        <div className="flex items-center gap-3 mb-10 text-xs text-stone-400">
+          <span className="px-2.5 py-1 bg-stone-200/60 text-stone-500 rounded-md font-medium">{note.category}</span>
+          {note.tags && note.tags.length > 0 && (
+            <div className="flex gap-1.5">
+              {note.tags.map((t: string) => (
+                <span key={t} className="px-2 py-0.5 bg-stone-100 text-stone-400 rounded-full text-[11px]">#{t}</span>
+              ))}
             </div>
           )}
-          {note.tags && note.tags.length > 0 && (
-            <div className="border-t border-gray-100 px-6 py-3 flex flex-wrap gap-2">
-              {note.tags.map((t:string) => <span key={t} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{t}</span>)}
+          <span className="ml-auto">{new Date(note.created_at).toLocaleDateString('zh-CN')}</span>
+        </div>
+
+        {/* Cornell Card */}
+        <article className="rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden" style={{ background: '#fffdf9' }}>
+          {/* Main body: left cue + right note */}
+          <div className="flex flex-col md:flex-row">
+            {/* Left: Cue zone (30%) */}
+            <div className="md:w-[30%] p-8 md:pr-6 md:border-r border-stone-100" style={{ background: '#f9f7f2' }}>
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[13px]" style={{ background: '#e8e4dc' }}>🔍</div>
+                <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-stone-500">线索栏</span>
+              </div>
+              <div className="text-[14px] font-medium leading-[1.65] text-stone-700 whitespace-pre-wrap">
+                {note.cue_text || '暂无线索'}
+              </div>
+            </div>
+
+            {/* Right: Note zone (70%) */}
+            <div className="md:w-[70%] p-8 md:pl-10">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[13px]" style={{ background: '#e8e4dc' }}>📝</div>
+                <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-stone-500">笔记栏</span>
+              </div>
+              {note.content_html ? (
+                <div
+                  className="max-w-none"
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: '1.7',
+                    color: '#44403c',
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: note.content_html
+                      .replace(/<strong([^>]*)>/g, '<strong$1 style="background:linear-gradient(180deg,transparent 55%,#fde68a 55%);font-weight:600;color:#44403c;padding:0 2px;border-radius:2px;">')
+                      .replace(/<ul>/g, '<ul style="list-style:disc;padding-left:1.25rem;margin:0.75rem 0;">')
+                      .replace(/<ol>/g, '<ol style="list-style:decimal;padding-left:1.25rem;margin:0.75rem 0;">')
+                      .replace(/<li>/g, '<li style="margin-bottom:0.5rem;line-height:1.7;color:#57534e;">')
+                      .replace(/<h(\d)([^>]*)>/g, '<h$1$2 style="font-size:15px;font-weight:700;color:#292524;margin:1.25rem 0 0.5rem;">')
+                      .replace(/<p>/g, '<p style="margin-bottom:0.75rem;line-height:1.7;color:#57534e;">')
+                  }}
+                />
+              ) : (
+                <div className="text-[14px] text-stone-500 leading-[1.7] whitespace-pre-wrap">
+                  {note.content_md || '暂无笔记内容'}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom: Summary zone */}
+          {note.summary_text && (
+            <div className="px-8 py-6 border-t" style={{ background: '#faf6ed', borderColor: '#ede8da' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[13px]" style={{ background: '#e8dcc8' }}>✅</div>
+                <span className="text-[12px] font-bold uppercase tracking-[0.1em]" style={{ color: '#92784a' }}>总结栏</span>
+              </div>
+              <div className="text-[14px] font-medium leading-[1.65] whitespace-pre-wrap" style={{ color: '#6b5b3e' }}>
+                {note.summary_text}
+              </div>
             </div>
           )}
         </article>
