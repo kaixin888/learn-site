@@ -54,22 +54,22 @@ export default function HomePage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen" style={{ background: '#f7f5f0' }}>
+      <header className="border-b sticky top-0 z-10" style={{ background: 'rgba(255,253,249,0.95)', backdropFilter: 'blur(8px)', borderColor: '#e7e5e0' }}>
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold text-gray-900 text-center mb-4">学习笔记</h1>
+          <h1 className="text-xl font-bold text-stone-800 text-center mb-4 tracking-tight">学习笔记</h1>
           <div className="flex gap-2">
             <div className="flex-1"><SearchBar value={search} onSearch={handleSearch} /></div>
-            <button onClick={handleSearchSubmit} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700">搜索</button>
+            <button onClick={handleSearchSubmit} className="px-4 py-2 text-white rounded-xl text-sm font-medium transition-colors" style={{ background: '#57534e' }}>搜索</button>
           </div>
         </div>
       </header>
       <div className="max-w-7xl mx-auto px-4 py-6">
         <CategoryNav active={category} onChange={(c)=>{setCategory(c);setSearch("");}} categories={categories} />
         {loading ? (
-          <div className="text-center py-20 text-gray-400">加载中...</div>
+          <div className="text-center py-20 text-stone-400">加载中...</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
+          <div className="text-center py-20 text-stone-400">
             <p className="text-lg">暂无笔记</p>
             <p className="text-sm mt-2">去管理端粘贴 Markdown 内容发布第一篇笔记吧</p>
           </div>
