@@ -6,13 +6,8 @@ export default function CornellCard({ note }: { note: Note }) {
   return (
     <Link href={`/note/${note.id}`} className="block group">
       <article className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
-        {/* Compact preview: cue + summary only */}
+        {/* Compact preview: cue + summary only, no title (cue already contains the question) */}
         <div className="p-4">
-          {/* Title */}
-          <h3 className="text-[14px] font-bold text-slate-800 mb-2.5 leading-snug group-hover:text-blue-600 transition-colors">
-            {note.title}
-          </h3>
-
           {/* Cue zone */}
           <div className="bg-slate-50 rounded-lg px-3.5 py-2.5 mb-2.5">
             <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1 flex items-center gap-1">
