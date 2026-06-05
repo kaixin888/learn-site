@@ -45,7 +45,7 @@ export default function AdminPage() {
       body: JSON.stringify({ name }),
     });
     if (res.ok) { setNewCatName(''); setCatMsg(''); fetchCategories(); }
-    else { const err = await res.json(); setCatMsg('新增失败: ' + err.error); }
+    else { const { error } = await res.json(); setCatMsg(error || '新增失败'); }
   }
 
   async function handleUpdateCategory() {
