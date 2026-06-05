@@ -1,39 +1,134 @@
 'use client';
 import { type Note } from '@/types';
 
-export default function NoteDetail({ note, onBack }: { note: Note; onBack: () => void })
-{  return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <button onClick={onBack} className="mb-4 text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-        返回列表
+export default function NoteDetail({ note, onBack }: { note: Note; onBack: () => void }) {
+  // Parse note content into blocks
+  function parseNoteBlocks(content: string): { title: string; items: string[] }[] {
+    const blocks: { title: string; items: string[] }[] = [];
+    const lines = content.split('\n');
+    let currentBlock: { title: string; items: string[] } | null = null;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+
+      const headingMatch = trimmed.match(/^(\d+\.\s*)(.+)$/);
+      if (headingMatch) {
+        if (currentBlock) blocks.push(currentBlock);
+        currentBlock = { title: headingMatch[2].trim(), items: [] };
+        continue;
+      }
+
+      const bulletMatch = trimmed.match(/^[-*]\s+(.+)$/);
+      if (bulletMatch && currentBlock) {
+        currentBlock.items.push(bulletMatch[1].trim());
+        continue;
+      }
+
+      if (!currentBlock) {
+        currentBlock = { title: '', items: [] };
+      }
+      currentBlock.items.push(trimmed);
+    }
+    if (currentBlock) blocks.push(currentBlock);
+
+    if (blocks.length === 0 && content.trim()) {
+      blocks.push({ title: '', items: content.split('\n').map(l => l.trim()).filter(Boolean) });
+    }
+    return blocks;
+  }
+
+  function renderInline(text: string): React.ReactNode {
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-semibold text-slate-800">{part.slice(2, -2)}</strong>;
+      }
+      return <span key={i}>{part}</span>;
+    });
+  }
+
+  const noteBlocks = parseNoteBlocks(note.content_md || note.content_html || '');
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      {/* Back button */}
+      <button onClick={onBack} className="mb-6 flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors">
+        ← 返回列表
       </button>
-      <article className="max-w-4xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{note.title}</h1>
-        <div className="flex items-center gap-3 mb-8">
-          <span className="text-xs bg-gray-200 text-gray-600 px-2.5 py-1 rounded-full">{note.category}</span>
-          {note.tags && note.tags.map((t: string) => (<span key={t} className="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full">{t}</span>))}
-          <span className="text-xs text-gray-400">{new Date(note.created_at).toLocaleDateString('zh-CN')}</span>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-[30%] bg-gradient-to-br from-blue-50 to-blue-100 p-6 border-b md:border-b-0 md:border-r border-gray-200">
-              <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wider mb-3">提示</h3>
-              <div className="text-sm text-blue-900 leading-relaxed whitespace-pre-wrap">{note.cue_text}</div>
+
+      {/* Title */}
+      <h1 className="text-2xl font-bold text-slate-800 mb-2">{note.title}</h1>
+
+      {/* Meta */}
+      <div className="flex items-center gap-3 mb-6 text-xs text-gray-400">
+        <span>{note.category}</span>
+        {note.tags && note.tags.length > 0 && (
+          <div className="flex gap-1.5">
+            {note.tags.map(t => (
+              <span key={t} className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">#{t}</span>
+            ))}
+          </div>
+        )}
+        <span>{new Date(note.created_at).toLocaleDateString('zh-CN')}</span>
+      </div>
+
+      {/* Cornell Card */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        {/* Main body */}
+        <div className="flex flex-col md:flex-row min-h-[240px]">
+          {/* Left: Cue zone */}
+          <div className="md:w-[35%] bg-slate-50 p-6 md:pr-5 border-b md:border-b-0 md:border-r border-dashed border-gray-200 flex flex-col">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1">
+              🔍 线索栏 (提问自测)
             </div>
-            <div className="md:w-[70%] p-6">
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">笔记</h3>
-              <div className="prose prose-sm max-w-none text-gray-800" dangerouslySetInnerHTML={{ __html: note.content_html }} />
+            <div className="text-[14px] font-semibold leading-snug text-slate-800 whitespace-pre-wrap">
+              {note.cue_text || '暂无线索'}
             </div>
           </div>
-          {note.summary_text && (
-            <div className="border-t border-gray-200 bg-gray-50 p-6">
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">总结</h3>
-              <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{note.summary_text}</div>
+
+          {/* Right: Note zone */}
+          <div className="md:w-[65%] bg-white p-6 md:pl-8">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1">
+              📝 笔记栏 (核心知识点)
             </div>
-          )}
+            {noteBlocks.length > 0 ? (
+              <div className="space-y-5">
+                {noteBlocks.map((block, idx) => (
+                  <div key={idx}>
+                    {block.title && (
+                      <div className="text-[15px] font-bold text-slate-700 mb-2.5">{block.title}</div>
+                    )}
+                    <ul className="list-none space-y-2">
+                      {block.items.map((item, iIdx) => (
+                        <li key={iIdx} className="text-[13.5px] text-gray-600 leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-sky-400 before:font-bold before:text-base before:-top-px">
+                          {renderInline(item)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[13.5px] text-gray-600 leading-relaxed whitespace-pre-wrap">
+                {note.content_md || note.content_html || '暂无笔记内容'}
+              </div>
+            )}
+          </div>
         </div>
-      </article>
+
+        {/* Bottom: Summary zone */}
+        {note.summary_text && (
+          <div className="bg-green-50 border-t border-green-200 px-8 py-5">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-green-700 mb-2.5 flex items-center gap-1">
+              ✅ 总结栏 (精简口诀)
+            </div>
+            <div className="text-[13.5px] font-semibold leading-snug text-green-800 whitespace-pre-wrap">
+              {note.summary_text}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

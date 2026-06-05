@@ -4,13 +4,11 @@ import { type Note, type Category, DEFAULT_CATEGORIES } from "@/types";
 import SearchBar from "@/components/SearchBar";
 import CategoryNav from "@/components/CategoryNav";
 import CornellCard from "@/components/CornellCard";
-import NoteDetail from "@/components/NoteDetail";
 
 export default function HomePage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-  const [selected, setSelected] = useState<Note|null>(null);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
 
@@ -38,10 +36,6 @@ export default function HomePage() {
 
   function handleSearch(q: string) { setSearch(q); }
   function handleSearchSubmit() { fetchNotes(); }
-
-  if (selected) {
-    return <NoteDetail note={selected} onBack={() => setSelected(null)} />;
-  }
 
   // Build a set of category names to match (parent + all its children)
   const matchCategories = new Set<string>();
@@ -81,7 +75,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-            {filtered.map(n => <CornellCard key={n.id} note={n} onClick={() => setSelected(n)} />)}
+            {filtered.map(n => <CornellCard key={n.id} note={n} />)}
           </div>
         )}
       </div>
