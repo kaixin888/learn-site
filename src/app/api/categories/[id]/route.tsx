@@ -3,10 +3,16 @@ import { getSupabase } from '@/lib/supabase';
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = getSupabase();
+  // 获取要删除的分类名
+  const { data: cat } = await supabase.from('categories').select('name').eq('id', params.id).single();
   // 检查是否有子分类
   const { data: children } = await supabase.from('categories').select('id').eq('parent_id', params.id).limit(1);
   if (children && children.length > 0) {
     return NextResponse.json({ error: '请先删除该分类下的所有子分类' }, { status: 400 });
+  }
+  // 将该分类下的笔记归为"未分类"
+  if (cat) {
+    await supabase.from('notes').update({ category: '未分类' }).eq('category', cat.name);
   }
   const { error } = await supabase.from('categories').delete().eq('id', params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
