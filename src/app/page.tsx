@@ -23,9 +23,8 @@ export default function HomePage() {
   const fetchNotes = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (category) params.set("category", category);
-      const res = await fetch("/api/notes?" + params.toString());
+      // Always fetch all notes; filter client-side to support parent→children matching
+      const res = await fetch("/api/notes");
       const data = await res.json();
       if (Array.isArray(data)) setNotes(data);
       else setNotes([]);
@@ -33,7 +32,7 @@ export default function HomePage() {
       setNotes([]);
     }
     setLoading(false);
-  }, [category]);
+  }, []);
 
   useEffect(() => { fetchNotes(); }, [fetchNotes]);
 
