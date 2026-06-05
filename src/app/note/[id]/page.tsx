@@ -4,10 +4,14 @@ import Link from "next/link";
 export default async function NotePage({ params }: { params: { id: string } }) {
   let note;
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const res = await fetch(baseUrl + "/api/notes/" + params.id, { cache: "no-store" });
-    if (!res.ok) notFound();
-    note = await res.json();
+    // Use Supabase directly in server component to avoid self-fetch issues
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await supabase.from('notes').select('*').eq('id', params.id).single();
+    if (error || !data) notFound();
+    note = data;
   } catch { notFound(); }
 
   return (
