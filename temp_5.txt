@@ -1,0 +1,31 @@
+> **源文件**: 0元购订单成功取消的过程汇总.docx  |  **提取时间**: 2026-06-06 12:40:07  |  **类型**: DOCX  |  **图片**: 2 张
+
+---
+
+付费账号的高级客服可以取消0元购的FBA订单
+
+发现0元购， 马上转FBM和改高价（这两个生效时间最快）， 然后再去关折扣。
+
+马上通知上级领导， 商量对策。
+
+写邮件给亚马逊。
+
+
+**[图片占位符]**
+
+
+**[图片占位符]**
+
+Dear Amazon Customer Service Team,
+
+I am writing this email because I have discovered a serious issue during today's inventory check, and I need your assistance in resolving this urgent matter. As far as I know, approximately 300 units of a product have already been sold, but these products have defects that may affect customers' user experience. I am highly concerned about customer satisfaction and Amazon's reputation, so I would like to request an immediate cancellation of these orders and ensure that customers receive a reasonable resolution. I understand that this is an urgent situation and I hope that you can take action as soon as possible. Here are the details of the relevant orders:
+
+Order Number ：
+
+I kindly request the Amazon team to: Cancel the mentioned orders immediately and notify customers about the cancellation reasons. Please ensure that customers receive a clear explanation and that their shopping experience is not further negatively impacted. Contact the customers who have already placed these orders promptly, offering our sincerest apologies and providing appropriate compensation or alternative solutions to compensate for any inconvenience they may have experienced. I firmly believe that the Amazon team possesses excellent professionalism and problem-solving capabilities. In this urgent situation, I earnestly appeal for your swift response and timely resolution to ensure that customers receive satisfactory solutions. I sincerely apologize for any inconvenience caused to you and your team. If you require any further information or need to communicate with me, I am available to assist at any time. Thank you very much for your cooperation and understanding.
+
+Best regards,
+
+1-2个小时后亚马逊高级客服回复我了， 要求我进一步提供需要取消的订单号和对应的Asin。
+
+发附件过去后， 也是1-2个小时， 亚马逊告知我， 已成功取消了291个pending的订单， 已经发货到买家手上的其余23个订单无法取消。

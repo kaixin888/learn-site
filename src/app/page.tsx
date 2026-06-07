@@ -9,10 +9,12 @@ import NoteDetail from "@/components/NoteDetail";
 export default function HomePage() {
   const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  const [activeNode, setActiveNode] = useState<Category | null>(null); // null = 全部
   const [selectedIdx, setSelectedIdx] = useState<number>(-1);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+
+  const activeId = activeNode?.id ?? "";
 
   // 加载分类
   useEffect(() => {
@@ -31,14 +33,44 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // 按分类过滤
+  // 节点 id -> 该节点子树内所有「叶子类目名」集合（卡片 category 存的是叶子名）
+  const nodeLeafNames = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    const collect = (node: Category): Set<string> => {
+      const names = new Set<string>();
+      if (!node.children || node.children.length === 0) {
+        names.add(node.name); // 叶子：自身即类目名
+      } else {
+        node.children.forEach(c => collect(c).forEach(n => names.add(n)));
+      }
+      map.set(node.id, names);
+      return names;
+    };
+    categories.forEach(collect);
+    return map;
+  }, [categories]);
+
+  // 节点 id -> 聚合卡片数（含全部后代）
+  const nodeCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    // 先统计每个叶子类目名的卡片数
+    const byName = new Map<string, number>();
+    allNotes.forEach(n => byName.set(n.category, (byName.get(n.category) || 0) + 1));
+    nodeLeafNames.forEach((names, id) => {
+      let sum = 0;
+      names.forEach(name => { sum += byName.get(name) || 0; });
+      counts.set(id, sum);
+    });
+    return counts;
+  }, [allNotes, nodeLeafNames]);
+
+  // 按选中节点过滤（匹配该节点子树所有叶子类目）
   const filteredNotes = useMemo(() => {
-    let result = allNotes;
-    if (category) {
-      result = result.filter(n => n.category === category);
-    }
-    return result;
-  }, [allNotes, category]);
+    if (!activeNode) return allNotes;
+    const names = nodeLeafNames.get(activeNode.id);
+    if (!names) return allNotes.filter(n => n.category === activeNode.name);
+    return allNotes.filter(n => names.has(n.category));
+  }, [allNotes, activeNode, nodeLeafNames]);
 
   // 搜索过滤
   const displayedNotes = useMemo(() => {
@@ -49,10 +81,23 @@ export default function HomePage() {
     );
   }, [filteredNotes, search]);
 
-  // 分类变化时清空搜索
-  function handleCategoryChange(c: string) {
-    setCategory(c);
+  // 选中节点（来自导航）
+  function handleSelect(node: Category | null) {
+    setActiveNode(node);
     setSearch("");
+  }
+
+  // 按类目名定位节点（详情页点击 category 标签时用），找不到则构造一个虚拟叶子节点
+  function selectByName(name: string) {
+    let found: Category | null = null;
+    const walk = (n: Category) => {
+      if (found) return;
+      if (n.name === name) { found = n; return; }
+      n.children?.forEach(walk);
+    };
+    categories.forEach(walk);
+    setActiveNode(found ?? { id: `__name__:${name}`, name, parent_id: null, children: [] });
+    setSelectedIdx(-1);
   }
 
   // 选中卡片
@@ -68,6 +113,8 @@ export default function HomePage() {
   function handleNext() {
     if (selectedIdx < displayedNotes.length - 1) setSelectedIdx(selectedIdx + 1);
   }
+
+  const activeLabel = activeNode?.name ?? "";
 
   // 详情页
   if (selectedIdx >= 0 && selectedIdx < displayedNotes.length) {
@@ -95,7 +142,7 @@ export default function HomePage() {
           nextNote={nextNote}
           onPrev={handlePrev}
           onNext={handleNext}
-          onCategoryClick={(cat) => { setCategory(cat); setSelectedIdx(-1); }}
+          onCategoryClick={(cat) => selectByName(cat)}
         />
       </div>
     );
@@ -114,13 +161,25 @@ export default function HomePage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
         {/* 侧边栏分类 */}
-        <aside className="w-56 flex-shrink-0 hidden lg:block">
-          <CategoryNav active={category} onChange={handleCategoryChange} categories={categories} />
+        <aside className="w-60 flex-shrink-0 hidden lg:block">
+          <CategoryNav
+            activeId={activeId}
+            onSelect={handleSelect}
+            categories={categories}
+            counts={nodeCounts}
+            total={allNotes.length}
+          />
         </aside>
 
         {/* 移动端分类 */}
         <div className="lg:hidden w-full mb-4">
-          <CategoryNav active={category} onChange={handleCategoryChange} categories={categories} />
+          <CategoryNav
+            activeId={activeId}
+            onSelect={handleSelect}
+            categories={categories}
+            counts={nodeCounts}
+            total={allNotes.length}
+          />
         </div>
 
         {/* 主内容区 */}
@@ -132,14 +191,14 @@ export default function HomePage() {
             </div>
           ) : displayedNotes.length === 0 ? (
             <div className="text-center py-20 text-gray-400">
-              <p className="text-lg">{category ? `「${category}」暂无笔记` : '暂无笔记'}</p>
+              <p className="text-lg">{activeLabel ? `「${activeLabel}」暂无笔记` : '暂无笔记'}</p>
               <p className="text-sm mt-2">去管理端粘贴 Markdown 内容发布笔记吧</p>
             </div>
           ) : (
             <div>
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-500">
-                  {category ? `「${category}」` : '全部'} · {displayedNotes.length} 条笔记
+                  {activeLabel ? `「${activeLabel}」` : '全部'} · {displayedNotes.length} 条笔记
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

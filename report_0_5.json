@@ -1,0 +1,34 @@
+{
+ "batch_start": 0,
+ "batch_end": 5,
+ "total": 5,
+ "success": 0,
+ "failed": 5,
+ "results": [
+  {
+   "file": "0 1选品重要因素【评论评分】.md",
+   "status": "fail",
+   "error": "LLM error: API HTTP 404: {\"error\":{\"code\":\"InvalidEndpointOrModel.NotFound\",\"message\":\"The model or endpoint deepseek-v3-1-250821 does not exist or you do not have access to it. Request id: 02178074575657667b4ef5ba44a9620b39cdc0042b313b3be29d5\",\"param\":\"\",\"type\":\"Not Found\"}}"
+  },
+  {
+   "file": "0 2选品重要因素【防止专利侵权】.md",
+   "status": "fail",
+   "error": "LLM error: API HTTP 404: {\"error\":{\"code\":\"InvalidEndpointOrModel.NotFound\",\"message\":\"The model or endpoint deepseek-v3-1-250821 does not exist or you do not have access to it. Request id: 02178074575676385c9a7acb047d6dabbfa02bbf3a2b67bc74a22\",\"param\":\"\",\"type\":\"Not Found\"}}"
+  },
+  {
+   "file": "0 3选品重要因素【供应链】.md",
+   "status": "fail",
+   "error": "LLM error: API HTTP 404: {\"error\":{\"code\":\"InvalidEndpointOrModel.NotFound\",\"message\":\"The model or endpoint deepseek-v3-1-250821 does not exist or you do not have access to it. Request id: 021780745756871d619db30bd0c9858e230a26bb1693525545bbe\",\"param\":\"\",\"type\":\"Not Found\"}}"
+  },
+  {
+   "file": "0 4选品重要因素【毛利】.md",
+   "status": "fail",
+   "error": "LLM error: API HTTP 404: {\"error\":{\"code\":\"InvalidEndpointOrModel.NotFound\",\"message\":\"The model or endpoint deepseek-v3-1-250821 does not exist or you do not have access to it. Request id: 021780745757001d54a2e8b6146550b9b78e5e06cf50b226c47f2\",\"param\":\"\",\"type\":\"Not Found\"}}"
+  },
+  {
+   "file": "0 5选品重要因素【销量】.md",
+   "status": "fail",
+   "error": "LLM error: API HTTP 404: {\"error\":{\"code\":\"InvalidEndpointOrModel.NotFound\",\"message\":\"The model or endpoint deepseek-v3-1-250821 does not exist or you do not have access to it. Request id: 021780745757136adb2c2f0c14195f56dae5a2071f84ca1ee0766\",\"param\":\"\",\"type\":\"Not Found\"}}"
+  }
+ ]
+}
