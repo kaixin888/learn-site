@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { type Note, type Category, DEFAULT_CATEGORIES } from "@/types";
 import SearchBar from "@/components/SearchBar";
 import CategoryNav from "@/components/CategoryNav";
+import MobileCategoryNav from "@/components/MobileCategoryNav";
 import CornellCard from "@/components/CornellCard";
 import NoteDetail from "@/components/NoteDetail";
 
@@ -159,31 +160,30 @@ export default function HomePage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
-        {/* 侧边栏分类 */}
-        <aside className="w-60 flex-shrink-0 hidden lg:block">
-          <CategoryNav
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* 侧边栏分类 - 桌面端固定左侧 */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          <aside className="w-60 flex-shrink-0 hidden lg:block">
+            <CategoryNav
+              activeId={activeId}
+              onSelect={handleSelect}
+              categories={categories}
+              counts={nodeCounts}
+              total={allNotes.length}
+            />
+          </aside>
+
+          {/* 移动端分类 - 折叠式下拉 */}
+          <MobileCategoryNav
             activeId={activeId}
             onSelect={handleSelect}
             categories={categories}
             counts={nodeCounts}
             total={allNotes.length}
           />
-        </aside>
 
-        {/* 移动端分类 */}
-        <div className="lg:hidden w-full mb-4">
-          <CategoryNav
-            activeId={activeId}
-            onSelect={handleSelect}
-            categories={categories}
-            counts={nodeCounts}
-            total={allNotes.length}
-          />
-        </div>
-
-        {/* 主内容区 */}
-        <main className="flex-1 min-w-0">
+          {/* 主内容区 */}
+          <main className="flex-1 min-w-0">
           {loading ? (
             <div className="text-center py-20 text-gray-400">
               <svg className="animate-spin w-8 h-8 mx-auto mb-3 text-blue-500" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
@@ -208,7 +208,8 @@ export default function HomePage() {
               </div>
             </div>
           )}
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   );
